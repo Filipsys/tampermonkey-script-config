@@ -1,3 +1,6 @@
+> [!WARNING]  
+> Don't use this for yourself. If you want to use it change the webhook to a different one
+
 ## Installation
 1. Install [Tampermonkey](https://www.tampermonkey.net/)
 2. Open the Tampermonkey Dashboard
