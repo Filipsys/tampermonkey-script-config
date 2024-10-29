@@ -4,6 +4,7 @@
   "input[name='login' i]",
   "input[autocomplete='username']",
   "input[autocomplete='email']",
+  "input[inputmode='email']",
   "input[class*='login' i]",
   "input[class*='username' i]",
   "input[id*='login' i]",
