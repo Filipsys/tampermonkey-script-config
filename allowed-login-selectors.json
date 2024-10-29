@@ -12,7 +12,7 @@
   "input[placeholder*='mail' i]",
   "input[placeholder*='username' i]",
   "input[aria-label*='mail' i]",
-  "input[aria-label='username' i]",
+  "input[aria-label*='username' i]",
   "input[aria-labelledby*='mail' i]",
   "input[aria-labelledby*='username' i]"
 ]
