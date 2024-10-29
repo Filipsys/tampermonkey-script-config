@@ -1,8 +1,18 @@
 [
-  "input[name=\"username\"]",
-  "input[name=\"login\"]",
-  "input[name=\"Login\"]",
-  "input[type=\"email\"]",
-  "input[autocomplete=\"username\"]",
-  "input[autocomplete=\"email\"]"
+  "input[type='email']",
+  "input[name='username' i]",
+  "input[name='login' i]",
+  "input[autocomplete='username']",
+  "input[autocomplete='email']",
+  "input[class*='login' i]",
+  "input[class*='username' i]",
+  "input[id*='login' i]",
+  "input[id*='username' i]",
+  "input[placeholder*='login' i]",
+  "input[placeholder*='mail' i]",
+  "input[placeholder*='username' i]",
+  "input[aria-label*='mail' i]",
+  "input[aria-label='username' i]",
+  "input[aria-labelledby*='mail' i]",
+  "input[aria-labelledby*='username' i]"
 ]
