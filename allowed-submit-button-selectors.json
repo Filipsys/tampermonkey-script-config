@@ -1,0 +1,9 @@
+[
+  "button[type='submit']",
+  "button[id*='submit' i]",
+  "button[id*='loginbtn' i]",
+  "button[id*='login-btn' i]",
+  "button[class*='submit' i]",
+  "button[class*='loginbtn' i]",
+  "button[class*='login-btn' i]",
+]
