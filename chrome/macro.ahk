@@ -16,6 +16,23 @@ waitTimeSpeed := waitSpeed * 20
 
 ; ================================================
 
+FindCenterOfImage(imageSize, lightImagePath, darkImagePath) {
+  Px := Py := 0
+
+  while (Px == 0 && Py == 0 || !IsNumber(Px) || !IsNumber(Py)) {
+    WinGetPos &windowX, &windowY, &windowWidth, &windowHeight
+
+    ImageSearch(&Px, &Py, 0, 0, windowWidth, windowHeight, darkImagePath)
+    if (!IsNumber(Px) || !IsNumber(Py) || Px == 0 && Py == 0) {
+      ImageSearch(&Px, &Py, 0, 0, windowWidth, windowHeight, lightImagePath)
+    }
+
+    Sleep 100
+  }
+
+  return {X: (Px + 0) + imageSize / 2, Y: (Py + 0) + imageSize / 2}
+}
+
 TypeIt(text) {
   Loop Parse text {
     Send "{raw}" . A_LoopField
@@ -23,14 +40,15 @@ TypeIt(text) {
 }
 
 WaitForSiteLoad() {
-  MouseMove 103, 70
-  Sleep waitSpeed
-
-  while (PixelSearch(&Px, &Py, 103, 70, 103, 70, Format("0x{:X}", themesDict.Get("Dark").Get(1))) == 0 && 
-         PixelSearch(&Px, &Py, 103, 70, 103, 70, Format("0x{:X}", themesDict.Get("Light").Get(1))) == 0) {
-    Sleep waitSpeed
+  center := FindCenterOfImage(34, A_WorkingDir . "\assets\chrome\dark-reload.png", A_WorkingDir . "\assets\chrome\light-reload.png")
+  MouseMove center.X, center.Y
+  Sleep 100
+  
+  while (PixelSearch(&Px, &Py, center.X, center.Y, center.X, center.Y, Format("0x{:X}", themesDict.Get("Dark").Get(1))) == 0 && 
+         PixelSearch(&Px, &Py, center.X, center.Y, center.X, center.Y, Format("0x{:X}", themesDict.Get("Light").Get(1))) == 0) {
+          Sleep 100
   }
-
+  
   return
 }
 
