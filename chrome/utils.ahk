@@ -17,7 +17,7 @@ themesDict.Set("Light", [0xf2f2f2, 0xc9d8f0, 0xf2f2f2])
  * @param {Integer | unset} imageSizeY - The height of the image to search for. If not set, the width will be used.
  * 
  * @returns - Returns a global variable `centerImageMap` that contains the X and Y coordinates of the center of the image.
- **/
+ */
 FindCenterOfImage(imagePaths, imageSizeX, imageSizeY?) {
     Px := Py := 0
     rateLimit := 20
