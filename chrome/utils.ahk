@@ -105,7 +105,7 @@ TypeIt(text) {
  * Waits for the site to load. Returns after the site has loaded.
  */
 WaitForSiteLoad() {
-  FindCenterOfImage([A_WorkingDir . "\assets\chrome\buttons\light-reload.png", A_WorkingDir . "\assets\chrome\buttons\dark-reload.png"], 34)
+  FindCenterOfImage([A_WorkingDir . "\assets\buttons\light-reload.png", A_WorkingDir . "\assets\buttons\dark-reload.png"], 34)
   tempX := centerImageMap.Get("X")
   tempY := centerImageMap.Get("Y")
 

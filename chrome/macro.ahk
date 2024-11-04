@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2.0
+#SingleInstance Force
 #Include utils.ahk
 
 ; ================================================
@@ -15,8 +16,8 @@ longWaitSpeed := waitSpeed * 2.5
 longestWaitSpeed := waitSpeed * 5
 waitTimeSpeed := waitSpeed * 20
 
-buttonsPath := A_WorkingDir . "\assets\chrome\buttons\"
-togglesPath := A_WorkingDir . "\assets\chrome\toggles\"
+buttonsPath := A_WorkingDir . "\assets\buttons\"
+togglesPath := A_WorkingDir . "\assets\toggles\"
 
 ; ================================================
 
