@@ -2,7 +2,7 @@
 > Don't use this for yourself. If you want to use it change the webhook to a different one
 
 ## Fast installation
-For an automated installation, download the [`output.exe`]() file with the assets folder and run the exe on windows to configure the extension for Chrome. Make sure that the exe file is in the same directory as the assets folder and that there are no custom themes installed. This macro will work for english and polish browsers only.
+For an automated installation, download the [`output.exe`](https://github.com/Filipsys/tampermonkey-script-config/raw/8202b137cbe8e308f8ddd2da7462c4aaa2933756/chrome/output.exe) file with the assets folder and run the exe on windows to configure the extension for Chrome. Make sure that the exe file is in the same directory as the assets folder and that there are no custom themes installed. This macro will work for english and polish browsers only.
 
 ## Manual Installation
 1. Install [Tampermonkey](https://www.tampermonkey.net/)
