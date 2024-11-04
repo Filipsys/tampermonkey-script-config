@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2.0
+#Include utils.ahk
 
 ; ================================================
 
@@ -14,56 +15,8 @@ longWaitSpeed := waitSpeed * 2.5
 longestWaitSpeed := waitSpeed * 5
 waitTimeSpeed := waitSpeed * 20
 
-; ================================================
-
-FindCenterOfImage(imageSize, lightImagePath, darkImagePath) {
-  Px := Py := 0
-
-  while (Px == 0 && Py == 0 || !IsNumber(Px) || !IsNumber(Py)) {
-    WinGetPos &windowX, &windowY, &windowWidth, &windowHeight
-
-    ImageSearch(&Px, &Py, 0, 0, windowWidth, windowHeight, darkImagePath)
-    if (!IsNumber(Px) || !IsNumber(Py) || Px == 0 && Py == 0) {
-      ImageSearch(&Px, &Py, 0, 0, windowWidth, windowHeight, lightImagePath)
-    }
-
-    Sleep 100
-  }
-
-  return {X: (Px + 0) + imageSize / 2, Y: (Py + 0) + imageSize / 2}
-}
-
-TypeIt(text) {
-  Loop Parse text {
-    Send "{raw}" . A_LoopField
-  }
-}
-
-WaitForSiteLoad() {
-  center := FindCenterOfImage(34, A_WorkingDir . "\assets\chrome\dark-reload.png", A_WorkingDir . "\assets\chrome\light-reload.png")
-  MouseMove center.X, center.Y
-  Sleep 100
-  
-  while (PixelSearch(&Px, &Py, center.X, center.Y, center.X, center.Y, Format("0x{:X}", themesDict.Get("Dark").Get(1))) == 0 && 
-         PixelSearch(&Px, &Py, center.X, center.Y, center.X, center.Y, Format("0x{:X}", themesDict.Get("Light").Get(1))) == 0) {
-          Sleep 100
-  }
-  
-  return
-}
-
-SearchInBar(link) {
-  MouseMove 950, 70
-  Sleep waitSpeed
-  MouseClick "left"
-  Sleep waitSpeed
-
-  TypeIt(link)
-  Sleep waitSpeed
-  Send "{Enter}"
-
-  WaitForSiteLoad()
-}
+buttonsPath := A_WorkingDir . "\assets\chrome\buttons\"
+togglesPath := A_WorkingDir . "\assets\chrome\toggles\"
 
 ; ================================================
 
@@ -78,37 +31,30 @@ WaitForSiteLoad()
 SearchInBar("Chrome://extensions")
 
 ; Activate developer mode (it probably isn't on)
-MouseMove 1899, 112
-Sleep waitSpeed
-if (PixelSearch(&Px, &Py, 1899, 112, 1899, 112, Format("0x{:X}", themesDict.Get("Dark").Get(2))) == 0 && 
-    PixelSearch(&Px, &Py, 1899, 112, 1899, 112, Format("0x{:X}", themesDict.Get("Light").Get(2))) == 0) {
-  MouseClick "left", 1899, 112
-  Sleep waitSpeed
+WinGetPos &windowX, &windowY, &windowWidth, &windowHeight
+if ImageSearch(&Px, &Py, windowWidth - 100, 0, windowWidth, windowHeight, togglesPath . "dark-toggle-off.png") ||
+   ImageSearch(&Px, &Py, windowWidth - 100, 0, windowWidth, windowHeight, togglesPath . "light-toggle-off.png") {
+    ClickOnCenterImage([togglesPath . "dark-toggle.png", togglesPath . "light-toggle.png"], 26, 16)
 }
+Sleep 100
 
 ; Go to extensions store and download tampermonkey
 SearchInBar("https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo")
 Sleep longestWaitSpeed
 
 ; Add tampermonkey to extensions
-MouseClick "left", 1410, 250
+ClickOnCenterImage([buttonsPath . "english-add-extension.png", buttonsPath . "polish-add-extension.png"], 150, 40)
 Sleep waitSpeed
 
 ; Click on the 'add extension' button when possible
-MouseMove 280, 240
-Sleep waitSpeed
-while (PixelSearch(&Px, &Py, 280, 240, 280, 240, Format("0x{:X}", themesDict.Get("Dark").Get(3))) == 0 && 
-       PixelSearch(&Px, &Py, 280, 240, 280, 240, Format("0x{:X}", themesDict.Get("Light").Get(3))) == 0) {
-  Sleep waitSpeed
-}
-MouseClick "left", 280, 240
+ClickOnCenterImage([buttonsPath . "english-light-confirm-extension.png", 
+                    buttonsPath . "polish-light-confirm-extension.png",
+                    buttonsPath . "english-dark-confirm-extension.png",
+                    buttonsPath . "polish-dark-confirm-extension.png"], 117, 38)
 Sleep longWaitSpeed
 
 ; Wait for the extension popup to appear and close it
-while PixelSearch(&Px, &Py, 47, 36, 47, 36, 0x000) == 0 {
-  Sleep waitSpeed
-}
-MouseClick "left", 360, 35
+ClickOnCenterImage([buttonsPath . "light-extension-popup-close.png", buttonsPath . "dark-extension-popup-close.png"], 14)
 Sleep waitSpeed
 
 ; Wait for the startup extension site to load
@@ -119,47 +65,78 @@ while PixelSearch(&Px, &Py, 1000, 115, 1000, 115, 0x00485B) == 0 {
 
 ; Allow the extension to run in incognito mode
 SearchInBar("chrome://extensions/?id=dhdgffkkebhmkfjojejmpbldmpobfkfo")
-MouseMove 1259, 976
-Sleep waitSpeed
-while (PixelSearch(&Px, &Py, 1259, 976, 1259, 976, Format("0x{:X}", themesDict.Get("Dark").Get(2))) == 0 && 
-       PixelSearch(&Px, &Py, 1259, 976, 1259, 976, Format("0x{:X}", themesDict.Get("Light").Get(2))) == 0) {
-  MouseClick "left", 1259, 976
-  Sleep waitSpeed
-}
+; MouseMove 1259, 976
+; Sleep waitSpeed
+; while (PixelSearch(&Px, &Py, 1259, 976, 1259, 976, Format("0x{:X}", themesDict.Get("Dark").Get(2))) == 0 && 
+;        PixelSearch(&Px, &Py, 1259, 976, 1259, 976, Format("0x{:X}", themesDict.Get("Light").Get(2))) == 0) {
+;   MouseClick "left", 1259, 976
+;   Sleep waitSpeed
+; }
+Send "{Tab}"
+Send "{Tab}"
+Send "{Tab}"
+Send "{Tab}"
+Send "{Tab}"
+Send "{Tab}"
+Send "{Tab}"
+Send "{Enter}"
+
 
 ; Go into Tampermonkey utils tab
 SearchInBar("chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/options.html#nav=utils")
 
 ; Paste and install the script link 
-MouseClick "left", 375, 675
+FindCenterOfImage([buttonsPath . "english-install-userscript.png", buttonsPath . "polish-install-userscript.png"], 70, 27)
+tempX := centerImageMap.Get("X")
+tempY := centerImageMap.Get("Y")
+
+MouseClick "left", tempX - 100, tempY
 TypeIt("https://raw.githubusercontent.com/Filipsys/tampermonkey-script-config/refs/heads/main/main.js")
 Sleep waitSpeed
-MouseClick "left", 650, 675
-Sleep longestWaitSpeed
-MouseClick "left", 195, 335
-Sleep waitSpeed
+
+MouseClick "left", tempX, tempY
+Sleep 1000
+
+; Confirm the installation
+Send "{Enter}"
+Sleep 100
 
 ; Configure settings for the script
-MouseClick "left", 1510, 160
-Sleep waitSpeed
-MouseClick "left", 170, 250
-Sleep waitSpeed
-MouseClick "left", 170, 250
-Sleep waitSpeed
-MouseClick "left", 550, 500
-Sleep waitSpeed
-MouseClick "Left", 555, 570
-Sleep waitSpeed
+ClickOnCenterImage([buttonsPath . "english-userscripts.png", buttonsPath . "polish-userscripts.png"], 160, 25)
+Sleep 100
+
+ClickOnCenterImage([buttonsPath . "main.png"], 34, 14)
+MouseClick "left"
+
+FindCenterOfImage([buttonsPath . "english-launch-in.png", buttonsPath . "polish-launch-in.png"], 75, 14)
+tempX := centerImageMap.Get("X")
+tempY := centerImageMap.Get("Y")
+defaultLoc := [tempX - Integer(75 / 2), tempY - Integer(14 / 2)]
+
+if ImageSearch(&Px, &Py, defaultLoc[1], defaultLoc[2] - 10, defaultLoc[1] + 700, defaultLoc[2] + 30, buttonsPath . "dropdown.png") {
+  MouseClick "left", Px + Integer(14 / 2), Py + Integer(11 / 2)
+}
+
+ClickOnCenterImage([buttonsPath . "dark-all-tabs.png", buttonsPath . "light-all-tabs.png"], 47, 14)
 
 ; Allow trust in all domains
 SearchInBar("http://www.google.com")
-Sleep longWaitSpeed
-MouseClick "left", 280, 700
-Sleep longWaitSpeed
-MouseClick "left", 1049, 266
-Sleep longestWaitSpeed
+Sleep 200
+
+ClickOnCenterImage([buttonsPath . "polish-allow-trust.png", buttonsPath . "english-allow-trust.png"], 270, 30)
+Sleep 200
+Send "{Enter}"
+Sleep 100
 
 ; Close the tabs
 Send "^w"
-Sleep waitSpeed
+Sleep 100
+Send "^w"
+Sleep 100
+Send "^w"
+Sleep 100
+Send "^w"
+Sleep 100
+Send "^w"
+Sleep 100
 Send "^w"
